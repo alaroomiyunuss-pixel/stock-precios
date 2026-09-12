@@ -1,0 +1,412 @@
+<title>تسعير مخزون العطور</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Arabic:wght@400;500;600;700&family=IBM+Plex+Sans+Condensed:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+:root{
+  --bg:#F3F1ED; --surface:#FFFFFF; --surface-2:#FAF8F4; --surface-3:#EDEAE3;
+  --ink:#1B1915; --ink-2:#57514A; --muted:#736C62;
+  --line:#E1DCD3; --line-strong:#CDC6BA;
+  --brass:#8C5F0F; --brass-ink:#7A530C; --brass-soft:#F0E4CB; --brass-bar:#B98A2A; --on-brass:#FFFFFF;
+  --teal:#186360;
+  --good:#186B3B; --good-soft:#DFEFE4;
+  --warn:#8F5700; --warn-soft:#F7E8CE;
+  --bad:#94272A; --bad-soft:#F6E0DF;
+  --shadow:0 1px 2px rgba(27,25,21,.06), 0 8px 24px -16px rgba(27,25,21,.35);
+  --r:10px;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#141310; --surface:#1C1A16; --surface-2:#221F19; --surface-3:#2A261E;
+    --ink:#F2EEE6; --ink-2:#C2BAAC; --muted:#948C7F;
+    --line:#2E2A23; --line-strong:#413B31;
+    --brass:#D8A441; --brass-ink:#E7BC65; --brass-soft:#3A2D14; --brass-bar:#C79433; --on-brass:#191510;
+    --teal:#5CB2AB;
+    --good:#5FBE85; --good-soft:#16301F;
+    --warn:#E0A845; --warn-soft:#33260F;
+    --bad:#E27C74; --bad-soft:#37191A;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#141310; --surface:#1C1A16; --surface-2:#221F19; --surface-3:#2A261E;
+  --ink:#F2EEE6; --ink-2:#C2BAAC; --muted:#948C7F;
+  --line:#2E2A23; --line-strong:#413B31;
+  --brass:#D8A441; --brass-ink:#E7BC65; --brass-soft:#3A2D14; --brass-bar:#C79433; --on-brass:#191510;
+  --teal:#5CB2AB;
+  --good:#5FBE85; --good-soft:#16301F;
+  --warn:#E0A845; --warn-soft:#33260F;
+  --bad:#E27C74; --bad-soft:#37191A;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 8px 24px -16px rgba(0,0,0,.8);
+}
+
+*{box-sizing:border-box}
+body{
+  direction:rtl;
+  background:var(--bg);
+  color:var(--ink);
+  font-family:"IBM Plex Sans Arabic","Segoe UI",system-ui,sans-serif;
+  font-size:14px; line-height:1.6;
+  -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1600px;margin:0 auto;padding:20px 18px 160px}
+h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em}
+.num{direction:ltr;unicode-bidi:isolate;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
+.ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
+.eyebrow{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);font-weight:600}
+
+/* ---------- header ---------- */
+.masthead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;
+  border-bottom:2px solid var(--brass);padding-bottom:14px;margin-bottom:18px}
+.masthead h1{font-size:clamp(21px,2.6vw,30px)}
+.masthead .sub{color:var(--ink-2);font-size:13px;margin-top:3px}
+.masthead .sub b{color:var(--brass-ink);font-weight:600}
+.tools{display:flex;gap:8px;align-items:center}
+
+/* ---------- buttons / inputs ---------- */
+button,select,input{font:inherit;color:inherit}
+.btn{background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:7px 12px;
+  cursor:pointer;color:var(--ink-2);font-size:13px;font-weight:500;transition:.15s}
+.btn:hover{border-color:var(--brass);color:var(--brass-ink)}
+.btn.on{background:var(--brass-soft);border-color:var(--brass);color:var(--brass-ink)}
+.btn.primary{background:var(--brass);border-color:var(--brass);color:var(--on-brass)}
+input[type=text],input[type=number],select{
+  background:var(--surface);border:1px solid var(--line-strong);border-radius:8px;padding:7px 10px;width:100%}
+input[type=number]{font-family:"IBM Plex Mono",monospace;font-variant-numeric:tabular-nums;text-align:center}
+:focus-visible{outline:2px solid var(--brass);outline-offset:2px}
+label{font-size:12px;color:var(--ink-2)}
+
+/* ---------- KPI strip ---------- */
+.kpis{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;
+  background:var(--line);border:1px solid var(--line);border-radius:var(--r);overflow:hidden;margin-bottom:18px}
+.kpi{background:var(--surface);padding:12px 14px}
+.kpi .k{font-size:11.5px;color:var(--ink-2);font-weight:500}
+.kpi .v{font-size:21px;font-weight:600;margin-top:2px;letter-spacing:-.02em}
+.kpi.accent .v{color:var(--brass-ink)}
+.kpi.good .v{color:var(--good)}
+
+/* ---------- panels ---------- */
+.panel{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);margin-bottom:14px}
+.panel-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:11px 14px;cursor:pointer}
+.panel-head h2{font-size:14.5px;display:flex;align-items:center;gap:8px}
+.panel-head h2::before{content:"";width:3px;height:15px;background:var(--brass);border-radius:2px}
+.panel-body{padding:0 14px 14px;border-top:1px solid var(--line);padding-top:14px}
+.panel[data-open="0"] .panel-body{display:none}
+.chev{color:var(--muted);font-size:12px}
+
+.grid-set{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+.field{display:flex;flex-direction:column;gap:4px}
+.field .hint{font-size:11px;color:var(--muted);line-height:1.4}
+.switchrow{display:flex;align-items:flex-start;gap:8px;padding:9px 10px;background:var(--surface-2);
+  border:1px solid var(--line);border-radius:8px}
+.switchrow input{margin:4px 0 0;accent-color:var(--brass);width:15px;height:15px;flex:none}
+.tiers{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px}
+.tier{background:var(--surface-2);border:1px solid var(--line);border-radius:8px;padding:10px}
+.tier .t{font-size:11.5px;color:var(--ink-2);margin-bottom:6px}
+.note{font-size:12px;color:var(--ink-2);background:var(--brass-soft);border-radius:8px;padding:9px 11px;margin-top:12px;line-height:1.65}
+
+/* ---------- filters ---------- */
+.filters{z-index:20;background:var(--bg);padding:10px 0;margin-bottom:10px;border-bottom:1px solid var(--line)}
+@media (min-width:761px){.filters{position:sticky;top:0}}
+.frow{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.search{flex:1 1 260px;min-width:200px;position:relative}
+.search input{padding-right:32px}
+.search::before{content:"⌕";position:absolute;right:11px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:17px}
+.frow select{width:auto;min-width:130px}
+.chips{display:flex;gap:6px;flex-wrap:wrap}
+.chip{background:var(--surface);border:1px solid var(--line-strong);border-radius:999px;padding:5px 11px;
+  font-size:12.5px;cursor:pointer;color:var(--ink-2);transition:.15s}
+.chip:hover{border-color:var(--brass)}
+.chip.on{background:var(--brass);border-color:var(--brass);color:var(--on-brass)}
+.count{font-size:12.5px;color:var(--ink-2);margin-inline-start:auto}
+
+/* ---------- brand bars ---------- */
+.bars{display:flex;flex-direction:column;gap:7px}
+.bar{display:grid;grid-template-columns:130px 1fr auto;gap:10px;align-items:center;font-size:12.5px}
+.bar .bname{color:var(--ink-2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;direction:ltr;text-align:right}
+.bar .btrack{display:block;height:9px;background:var(--surface-3);border-radius:2px;overflow:hidden}
+.bar .bfill{display:block;height:100%;background:var(--brass-bar);border-radius:0 3px 3px 0}
+.bar .bval{color:var(--ink);font-weight:500;min-width:76px;text-align:left}
+
+/* ---------- table ---------- */
+.tablewrap{overflow:auto;max-height:74vh;background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{position:sticky;top:0;background:var(--surface-2);z-index:5;text-align:right;
+  font-size:11.5px;font-weight:600;color:var(--ink-2);padding:9px 10px;white-space:nowrap;
+  border-bottom:1px solid var(--line-strong);cursor:pointer;user-select:none}
+thead th.n{text-align:left}
+thead th:hover{color:var(--brass-ink)}
+thead th .ar{color:var(--brass);font-size:10px}
+tbody td{padding:8px 10px;border-bottom:1px solid var(--line);vertical-align:middle}
+tbody td.n{text-align:left}
+tbody tr:hover{background:var(--surface-2)}
+tbody tr.out{opacity:.55}
+tbody tr.sel{background:var(--brass-soft)}
+.pname{font-family:"IBM Plex Sans Condensed","IBM Plex Sans Arabic",sans-serif;font-weight:500;
+  direction:ltr;unicode-bidi:isolate;display:block;max-width:340px;line-height:1.35}
+.pmeta{display:flex;gap:6px;align-items:center;margin-top:3px;flex-wrap:wrap}
+.tag{font-size:10.5px;padding:1px 6px;border-radius:4px;background:var(--surface-3);color:var(--ink-2);
+  direction:ltr;unicode-bidi:isolate;letter-spacing:.02em}
+.tag.cos{background:var(--brass-soft);color:var(--brass-ink)}
+.tag.gtin{font-family:"IBM Plex Mono",monospace;font-size:10px;color:var(--muted);background:transparent;padding:1px 0}
+.pill{font-size:11px;font-weight:600;padding:2px 8px;border-radius:999px;display:inline-block;
+  direction:ltr;unicode-bidi:isolate}
+.pill.g{background:var(--good-soft);color:var(--good)}
+.pill.w{background:var(--warn-soft);color:var(--warn)}
+.pill.b{background:var(--bad-soft);color:var(--bad)}
+.stock{font-weight:600}
+.stock.zero{color:var(--bad);font-weight:500}
+td .ov{width:84px;padding:4px 6px;border:1px dashed var(--line-strong);background:transparent;border-radius:6px}
+td .ov.edited{border-style:solid;border-color:var(--brass);background:var(--brass-soft);font-weight:600}
+input[type=checkbox].cmp{accent-color:var(--brass);width:15px;height:15px;cursor:pointer}
+.more{display:flex;justify-content:center;padding:14px}
+.empty{padding:44px 20px;text-align:center;color:var(--ink-2)}
+
+/* ---------- compare drawer ---------- */
+.drawer{position:fixed;inset-inline:0;bottom:0;z-index:40;background:var(--surface);
+  border-top:2px solid var(--brass);box-shadow:0 -12px 32px -20px rgba(0,0,0,.5);max-height:62vh;overflow:auto}
+.drawer-head{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 16px;
+  position:sticky;top:0;background:var(--surface);border-bottom:1px solid var(--line)}
+.cmpgrid{display:grid;gap:1px;background:var(--line);padding:0;margin:0 16px 16px;border:1px solid var(--line);border-radius:8px;overflow:hidden}
+.cmpgrid>div{background:var(--surface);padding:8px 11px;font-size:12.5px}
+.cmpgrid .rowlab{background:var(--surface-2);color:var(--ink-2);font-weight:500;white-space:nowrap}
+.cmpgrid .hd{background:var(--surface-2);font-weight:600}
+.cmpgrid .best{color:var(--good);font-weight:600}
+
+@media (max-width:760px){
+  .wrap{padding:14px 12px 170px}
+  .bar{grid-template-columns:96px 1fr auto}
+  .tiers{grid-template-columns:1fr}
+}
+@media print{
+  .filters,.drawer,.tools,.panel-head .chev,.more{display:none}
+  body{background:#fff}
+  .tablewrap{overflow:visible;max-height:none;border:0}
+  thead th{position:static}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+
+.gate{position:fixed;inset:0;z-index:100;background:var(--bg);display:grid;place-items:center;padding:24px}
+.gatebox{width:min(380px,100%);background:var(--surface);border:1px solid var(--line);
+  border-top:3px solid var(--brass);border-radius:var(--r);padding:24px;box-shadow:var(--shadow);
+  display:flex;flex-direction:column;gap:12px}
+.gatebox h2{font-size:19px}
+.gatebox p{margin:0;font-size:12.5px;color:var(--ink-2);line-height:1.7}
+.gatebox input{background:var(--surface-2);border:1px solid var(--line-strong);border-radius:8px;
+  padding:9px 11px;width:100%;font-size:15px}
+.gateerr{font-size:12.5px;color:var(--bad);background:var(--bad-soft);border-radius:8px;padding:8px 10px}
+</style>
+
+<div class="wrap">
+
+  <header class="masthead">
+    <div>
+      <div class="eyebrow">قائمة المورد · 22/08/2026</div>
+      <h1>تسعير مخزون العطور ومستحضرات التجميل</h1>
+      <div class="sub"><b id="hdCount">1113</b> منتجاً · <b id="hdBrands">79</b> علامة تجارية · الأسعار بالـ يورو من ملف <span class="ltr">existencia de stock</span></div>
+    </div>
+    <div class="tools">
+      <button class="btn" id="themeBtn" title="تبديل المظهر">◐ المظهر</button>
+      <button class="btn" id="copyBtn">نسخ النتائج</button>
+    </div>
+  </header>
+
+  <div class="kpis" id="kpis"></div>
+
+  <section class="panel" id="panelSet" data-open="1">
+    <div class="panel-head" data-toggle="panelSet">
+      <h2>افتراضات التسعير — الشحن والضريبة والهامش</h2>
+      <span class="chev">▾</span>
+    </div>
+    <div class="panel-body">
+      <div class="grid-set">
+        <div class="field">
+          <label for="shipUnit">شحن ثابت لكل وحدة (€)</label>
+          <input type="number" id="shipUnit" step="0.05" min="0">
+          <span class="hint">تكلفة إيصال القطعة الواحدة إليك</span>
+        </div>
+        <div class="field">
+          <label for="shipPct">شحن كنسبة من الجملة (%)</label>
+          <input type="number" id="shipPct" step="0.5" min="0">
+          <span class="hint">للشحنات المسعّرة بنسبة من الفاتورة</span>
+        </div>
+        <div class="field">
+          <label for="otherUnit">تكاليف أخرى لكل وحدة (€)</label>
+          <input type="number" id="otherUnit" step="0.05" min="0">
+          <span class="hint">تغليف، ملصقات، مناولة</span>
+        </div>
+        <div class="field">
+          <label for="otherPct">تكاليف أخرى كنسبة (%)</label>
+          <input type="number" id="otherPct" step="0.5" min="0">
+          <span class="hint">عمولة منصة، دفع إلكتروني، تلف</span>
+        </div>
+        <div class="field">
+          <label for="vat">ضريبة القيمة المضافة (%)</label>
+          <input type="number" id="vat" step="0.5" min="0">
+          <span class="hint">٢١٪ هي النسبة القياسية في هولندا وإسبانيا</span>
+        </div>
+        <div class="field">
+          <label for="rounding">تقريب سعر البيع</label>
+          <select id="rounding">
+            <option value="95">ينتهي بـ ‎,95</option>
+            <option value="99">ينتهي بـ ‎,99</option>
+            <option value="50">أقرب ‎0,50</option>
+            <option value="1">أقرب يورو</option>
+            <option value="none">بدون تقريب</option>
+          </select>
+          <span class="hint">يُطبَّق على السعر شامل الضريبة</span>
+        </div>
+      </div>
+
+      <h3 style="font-size:12.5px;color:var(--ink-2);margin:16px 0 8px">نسبة الربح المضافة على التكلفة — متدرجة حسب سعر الجملة</h3>
+      <div class="tiers">
+        <div class="tier">
+          <div class="t">منتجات حتى <span class="num">€<input type="number" id="t1max" step="1" style="width:54px;padding:2px 4px;display:inline-block"></span></div>
+          <div class="field"><label for="t1">الهامش المضاف (%)</label><input type="number" id="t1" step="5" min="0"></div>
+        </div>
+        <div class="tier">
+          <div class="t">من <span class="num">€<span id="t1maxEcho">10</span></span> حتى <span class="num">€<input type="number" id="t2max" step="1" style="width:54px;padding:2px 4px;display:inline-block"></span></div>
+          <div class="field"><label for="t2">الهامش المضاف (%)</label><input type="number" id="t2" step="5" min="0"></div>
+        </div>
+        <div class="tier">
+          <div class="t">أعلى من <span class="num">€<span id="t2maxEcho">30</span></span></div>
+          <div class="field"><label for="t3">الهامش المضاف (%)</label><input type="number" id="t3" step="5" min="0"></div>
+        </div>
+      </div>
+
+      <div class="grid-set" style="margin-top:14px">
+        <div class="switchrow">
+          <input type="checkbox" id="basisIncl">
+          <label for="basisIncl"><b>أسعار الملف شاملة الضريبة</b><br><span class="hint">فعّلها فقط إذا كان المورد يسعّر شاملاً ٢١٪. الافتراضي أن السعر صافٍ قبل الضريبة.</span></label>
+        </div>
+        <div class="switchrow">
+          <input type="checkbox" id="vatRec" checked>
+          <label for="vatRec"><b>مسجّل بالضريبة (قابلة للاسترداد)</b><br><span class="hint">مفعّلة: ضريبة الشراء تُسترد فلا تُحسب تكلفة، وتضيف ٢١٪ على سعر البيع. مطفأة: الضريبة تصبح تكلفة عليك ولا تُضاف للعميل.</span></label>
+        </div>
+        <div class="switchrow">
+          <input type="checkbox" id="hideOut">
+          <label for="hideOut"><b>إخفاء غير المتوفر</b><br><span class="hint">٣٩٧ منتجاً في القائمة رصيدها صفر</span></label>
+        </div>
+        <div class="switchrow">
+          <input type="checkbox" id="simple">
+          <label for="simple"><b>عرض مبسّط</b><br><span class="hint">يخفي أعمدة الشحن والتكاليف والضريبة ويُبقي الجملة والبيع والربح</span></label>
+        </div>
+      </div>
+
+      <div class="note">
+        <b>كيف يُحسب السعر:</b> سعر الجملة + الشحن + التكاليف الأخرى = <b>التكلفة النهائية</b>. ثم تُضاف نسبة الربح حسب الشريحة، ثم ٢١٪ ضريبة، ثم يُقرَّب السعر للجمهور. الربح = سعر البيع بدون الضريبة − التكلفة النهائية. يمكنك تعديل سعر البيع لأي منتج يدوياً في الجدول وسيُعاد حساب ربحه فوراً.
+      </div>
+    </div>
+  </section>
+
+  <section class="panel" id="panelBrands" data-open="1">
+    <div class="panel-head" data-toggle="panelBrands">
+      <h2>أعلى العلامات ربحاً من المخزون الحالي</h2>
+      <span class="chev">▾</span>
+    </div>
+    <div class="panel-body"><div class="bars" id="bars"></div></div>
+  </section>
+
+  <div class="filters">
+    <div class="frow">
+      <div class="search"><input type="text" id="q" placeholder="ابحث باسم المنتج أو العلامة أو الباركود…" autocomplete="off"></div>
+      <select id="brand"><option value="">كل العلامات</option></select>
+      <select id="sort">
+        <option value="profitStock">ترتيب: إجمالي ربح المخزون</option>
+        <option value="profit">ترتيب: الربح لكل وحدة</option>
+        <option value="margin">ترتيب: نسبة الهامش</option>
+        <option value="stock">ترتيب: كمية المخزون</option>
+        <option value="whole">ترتيب: سعر الجملة (الأعلى)</option>
+        <option value="wholeAsc">ترتيب: سعر الجملة (الأرخص)</option>
+        <option value="name">ترتيب: الاسم أبجدياً</option>
+      </select>
+      <div class="chips">
+        <button class="chip on" data-cat="">الكل</button>
+        <button class="chip" data-cat="perfume">عطور</button>
+        <button class="chip" data-cat="cosmetica">كورية</button>
+      </div>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr id="thead"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="more" id="more"></div>
+  </div>
+
+</div>
+
+<div class="drawer" id="drawer" hidden>
+  <div class="drawer-head">
+    <h2 style="font-size:14px">مقارنة <span id="cmpN" class="num"></span> منتجات</h2>
+    <div style="display:flex;gap:8px"><button class="btn" id="cmpClear">مسح المقارنة</button></div>
+  </div>
+  <div class="cmpgrid" id="cmpgrid"></div>
+</div>
+
+
+<div class="gate" id="gate">
+  <form class="gatebox" id="gateForm">
+    <div class="eyebrow">وصول محمي</div>
+    <h2>تسعير مخزون العطور</h2>
+    <p>بيانات المورد مشفّرة داخل الصفحة نفسها. أدخل كلمة المرور لفكّها — تُحفظ على هذا الجهاز فلا تُطلب مرة أخرى.</p>
+    <input type="password" id="pw" placeholder="كلمة المرور" autocomplete="current-password" required>
+    <button class="btn primary" type="submit" id="gateBtn">فتح الجدول</button>
+    <div class="gateerr" id="gateErr" hidden></div>
+  </form>
+</div>
+
+<script src="payload.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  var $=function(i){return document.getElementById(i)};
+  var b=function(s){return Uint8Array.from(atob(s),function(c){return c.charCodeAt(0)})};
+
+  async function unlock(pw){
+    var e=window.ENC;
+    var km=await crypto.subtle.importKey('raw',new TextEncoder().encode(pw),'PBKDF2',false,['deriveKey']);
+    var key=await crypto.subtle.deriveKey(
+      {name:'PBKDF2',salt:b(e.s),iterations:e.it,hash:'SHA-256'},
+      km,{name:'AES-GCM',length:256},false,['decrypt']);
+    var plain=await crypto.subtle.decrypt({name:'AES-GCM',iv:b(e.n)},key,b(e.c));
+    var txt=await new Response(new Blob([plain]).stream()
+              .pipeThrough(new DecompressionStream('gzip'))).text();
+    window.PRODUCTS=JSON.parse(txt);
+  }
+
+  function open_(){ $('gate').remove(); window.bootApp(); }
+
+  function fail(msg){
+    var el=$('gateErr'); el.textContent=msg; el.hidden=false;
+    $('gateBtn').disabled=false; $('gateBtn').textContent='فتح الجدول';
+  }
+
+  $('gateForm').addEventListener('submit',function(ev){
+    ev.preventDefault();
+    var pw=$('pw').value;
+    $('gateBtn').disabled=true; $('gateBtn').textContent='جارٍ الفتح…'; $('gateErr').hidden=true;
+    unlock(pw).then(function(){
+      try{ localStorage.setItem('sp_pw',pw); }catch(e){}
+      open_();
+    }).catch(function(err){
+      if(!window.crypto||!crypto.subtle) return fail('المتصفح يمنع فك التشفير. افتح الصفحة عبر https.');
+      if(typeof DecompressionStream==='undefined') return fail('متصفحك قديم ولا يدعم فك الضغط. حدّثه أو استخدم متصفحاً آخر.');
+      fail('كلمة المرور غير صحيحة.');
+    });
+  });
+
+  // فتح تلقائي إن سبق الفتح على هذا الجهاز
+  var saved=null; try{ saved=localStorage.getItem('sp_pw'); }catch(e){}
+  if(saved){
+    $('gateBtn').disabled=true; $('gateBtn').textContent='جارٍ الفتح…';
+    unlock(saved).then(open_).catch(function(){
+      try{ localStorage.removeItem('sp_pw'); }catch(e){}
+      $('gateBtn').disabled=false; $('gateBtn').textContent='فتح الجدول';
+    });
+  } else { $('pw').focus(); }
+})();
+</script>
