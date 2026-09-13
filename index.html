@@ -49,7 +49,9 @@ body{
   font-size:14px; line-height:1.6;
   -webkit-font-smoothing:antialiased;
 }
-.wrap{max-width:1600px;margin:0 auto;padding:20px 18px 160px}
+.wrap{max-width:1600px;margin:0 auto;padding:20px 18px 40px}
+/* أفسح مكاناً لدرج المقارنة عندما يكون مفتوحاً فقط */
+body:has(.drawer:not([hidden])) .wrap{padding-bottom:170px}
 h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em}
 .num{direction:ltr;unicode-bidi:isolate;font-family:"IBM Plex Mono",ui-monospace,monospace;font-variant-numeric:tabular-nums}
 .ltr{direction:ltr;unicode-bidi:isolate;display:inline-block}
@@ -59,9 +61,22 @@ h1,h2,h3{margin:0;text-wrap:balance;font-weight:600;letter-spacing:-.01em}
 .masthead{display:flex;flex-wrap:wrap;gap:14px;align-items:flex-end;justify-content:space-between;
   border-bottom:2px solid var(--brass);padding-bottom:14px;margin-bottom:18px}
 .masthead h1{font-size:clamp(21px,2.6vw,30px)}
-.masthead .sub{color:var(--ink-2);font-size:13px;margin-top:3px}
-.masthead .sub b{color:var(--brass-ink);font-weight:600}
+.sub{color:var(--ink-2);font-size:13px}
+.sub b{color:var(--brass-ink);font-weight:600}
 .tools{display:flex;gap:8px;align-items:center}
+
+/* ---------- tabs ---------- */
+.tabs{display:flex;gap:3px;background:var(--surface-3);border-radius:11px;padding:3px}
+.tab{background:transparent;border:0;border-radius:8px;padding:9px 20px;cursor:pointer;
+  font-size:13.5px;font-weight:600;color:var(--ink-2);white-space:nowrap;transition:.15s}
+.tab:hover{color:var(--brass-ink)}
+.tab.on{background:var(--surface);color:var(--brass-ink);box-shadow:var(--shadow)}
+#tab-products,#tab-dash{display:block}
+#tab-products[hidden],#tab-dash[hidden]{display:none}
+
+/* شريط معلومات تبويب الملخص */
+.dashbar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;
+  margin-bottom:16px;padding-bottom:12px;border-bottom:1px solid var(--line)}
 
 /* ---------- buttons / inputs ---------- */
 button,select,input{font:inherit;color:inherit}
@@ -174,9 +189,13 @@ input[type=checkbox].cmp{accent-color:var(--brass);width:15px;height:15px;cursor
 .cmpgrid .best{color:var(--good);font-weight:600}
 
 @media (max-width:760px){
-  .wrap{padding:14px 12px 170px}
+  .wrap{padding:14px 12px 30px}
   .bar{grid-template-columns:96px 1fr auto}
   .tiers{grid-template-columns:1fr}
+  .masthead{gap:10px}
+  .tabs{width:100%}
+  .tab{flex:1;padding:9px 8px;text-align:center}
+  .dashbar{flex-direction:column;align-items:flex-start}
 }
 @media print{
   .filters,.drawer,.tools,.panel-head .chev,.more{display:none}
@@ -203,13 +222,58 @@ input[type=checkbox].cmp{accent-color:var(--brass);width:15px;height:15px;cursor
     <div>
       <div class="eyebrow">قائمة المورد · 22/08/2026</div>
       <h1>تسعير مخزون العطور ومستحضرات التجميل</h1>
-      <div class="sub"><b id="hdCount">1113</b> منتجاً · <b id="hdBrands">79</b> علامة تجارية · الأسعار بالـ يورو من ملف <span class="ltr">existencia de stock</span></div>
     </div>
+    <nav class="tabs" role="tablist">
+      <button class="tab on" id="tabBtnProducts" data-tab="products" role="tab" aria-selected="true">المنتجات والبحث</button>
+      <button class="tab" id="tabBtnDash" data-tab="dash" role="tab" aria-selected="false">الملخص والتسعير</button>
+    </nav>
+  </header>
+
+<!-- ============ تبويب المنتجات والبحث ============ -->
+<section id="tab-products" role="tabpanel" aria-labelledby="tabBtnProducts">
+
+  <div class="filters">
+    <div class="frow">
+      <div class="search"><input type="text" id="q" placeholder="ابحث باسم المنتج أو العلامة أو الباركود…" autocomplete="off"></div>
+      <select id="brand"><option value="">كل العلامات</option></select>
+      <select id="sort">
+        <option value="profitStock">ترتيب: إجمالي ربح المخزون</option>
+        <option value="profit">ترتيب: الربح لكل وحدة</option>
+        <option value="margin">ترتيب: نسبة الهامش</option>
+        <option value="stock">ترتيب: كمية المخزون</option>
+        <option value="whole">ترتيب: سعر الجملة (الأعلى)</option>
+        <option value="wholeAsc">ترتيب: سعر الجملة (الأرخص)</option>
+        <option value="name">ترتيب: الاسم أبجدياً</option>
+      </select>
+      <div class="chips">
+        <button class="chip on" data-cat="">الكل</button>
+        <button class="chip" data-cat="perfume">عطور</button>
+        <button class="chip" data-cat="cosmetica">كورية</button>
+      </div>
+      <span class="count" id="count"></span>
+    </div>
+  </div>
+
+  <div class="tablewrap">
+    <table>
+      <thead><tr id="thead"></tr></thead>
+      <tbody id="tbody"></tbody>
+    </table>
+    <div class="more" id="more"></div>
+  </div>
+
+</section>
+
+<!-- ============ تبويب الملخص والتسعير ============ -->
+<section id="tab-dash" role="tabpanel" aria-labelledby="tabBtnDash" hidden>
+
+  <div class="dashbar">
+    <div class="sub"><b id="hdCount">1113</b> منتجاً · <b id="hdBrands">79</b> علامة تجارية · الأسعار بالـ يورو من ملف <span class="ltr">existencia de stock</span></div>
     <div class="tools">
       <button class="btn" id="themeBtn" title="تبديل المظهر">◐ المظهر</button>
       <button class="btn" id="copyBtn">نسخ النتائج</button>
     </div>
-  </header>
+  </div>
 
   <div class="kpis" id="kpis"></div>
 
@@ -307,35 +371,7 @@ input[type=checkbox].cmp{accent-color:var(--brass);width:15px;height:15px;cursor
     <div class="panel-body"><div class="bars" id="bars"></div></div>
   </section>
 
-  <div class="filters">
-    <div class="frow">
-      <div class="search"><input type="text" id="q" placeholder="ابحث باسم المنتج أو العلامة أو الباركود…" autocomplete="off"></div>
-      <select id="brand"><option value="">كل العلامات</option></select>
-      <select id="sort">
-        <option value="profitStock">ترتيب: إجمالي ربح المخزون</option>
-        <option value="profit">ترتيب: الربح لكل وحدة</option>
-        <option value="margin">ترتيب: نسبة الهامش</option>
-        <option value="stock">ترتيب: كمية المخزون</option>
-        <option value="whole">ترتيب: سعر الجملة (الأعلى)</option>
-        <option value="wholeAsc">ترتيب: سعر الجملة (الأرخص)</option>
-        <option value="name">ترتيب: الاسم أبجدياً</option>
-      </select>
-      <div class="chips">
-        <button class="chip on" data-cat="">الكل</button>
-        <button class="chip" data-cat="perfume">عطور</button>
-        <button class="chip" data-cat="cosmetica">كورية</button>
-      </div>
-      <span class="count" id="count"></span>
-    </div>
-  </div>
-
-  <div class="tablewrap">
-    <table>
-      <thead><tr id="thead"></tr></thead>
-      <tbody id="tbody"></tbody>
-    </table>
-    <div class="more" id="more"></div>
-  </div>
+</section>
 
 </div>
 

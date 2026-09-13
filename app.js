@@ -318,6 +318,21 @@ window.bootApp = function(){
 
   $('cmpClear').addEventListener('click', function(){ CMP = []; render(); });
 
+  // التبويبات — الصفحة تفتح دائماً على المنتجات
+  document.querySelectorAll('.tab[data-tab]').forEach(function(b){
+    b.addEventListener('click', function(){
+      var t = b.dataset.tab;
+      document.querySelectorAll('.tab[data-tab]').forEach(function(x){
+        var on = x === b;
+        x.classList.toggle('on', on);
+        x.setAttribute('aria-selected', on ? 'true' : 'false');
+      });
+      $('tab-products').hidden = t !== 'products';
+      $('tab-dash').hidden     = t !== 'dash';
+      window.scrollTo(0, 0);
+    });
+  });
+
   document.querySelectorAll('[data-toggle]').forEach(function(h){
     h.addEventListener('click', function(){
       var p = $(h.dataset.toggle);
